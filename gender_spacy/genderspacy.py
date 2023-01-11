@@ -83,10 +83,10 @@ class GenderParser:
         self.doc.spans["ruler"] = original_spans
         return self.doc
     def visualize(self, jupyter=True):
-        if jupyter==True:
+        # if jupyter==True:
             displacy.render(self.doc, style="span", options=visualize_params, jupyter=True)
-        else:
-            displacy.render(self.doc, style="span", options={"spans_key": "ruler"})
+        # else:
+        #     displacy.render(self.doc, style="span", options={"spans_key": "ruler"})
             
 MODELS = {
     "xlm_roberta": {

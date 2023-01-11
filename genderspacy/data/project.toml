@@ -1,0 +1,37 @@
+[pipeline_data]
+name = "genderspacy"
+author = "W.J.B. Mattingly"
+url = "https://github.com/wjbmattingly/genderspacy"
+version = "0.0.1"
+description = "This is a spaCy pipeline for helping identify gender in texts. It is inclusive of female, male, and neutral gender pronouns/titles."
+
+[colors]
+NEUTRAL_PRONOUN="#ffb6f8"
+PERSON_NEUTRAL="#ffb6f8"
+
+FEMALE_PRONOUN="#b6fff7"
+PERSON_FEMALE="#b6fff7"
+PERSON_FEMALE_COREF="#b6fff7"
+
+MALE_PRONOUN="#b6b7ff"
+PERSON_MALE="#b6b7ff"
+PERSON_MALE_COREF="#b6b7ff"
+
+COLLECTIVE_SPOUSAL="#f7ffb6"
+
+[visualize_params]
+spans_key="ruler"
+
+[regex]
+individual = "(<GENDER_TITLES>)(\\.)* [A-Z][a-z]*( [A-Z][a-z]*)*"
+spouse = "(<GENDER_TITLES>)(\\.)* (and|&) (<GENDER_TITLES>)(\\.)* [A-Z][a-z]*( [A-Z][a-z]*)*"
+
+[titles]
+female = ["Mrs", "Ms", "Miss", "Madam", "Mdm"]
+male = ["Mr"]
+neutral = ["Mx", "Ind", "Msr", "Mre", "Misc", "Pr",
+
+          # Professional
+          "Dr", "Doctor", "Prof", "Professor",
+          # Military
+          '1LT', '1Lt', '1SG', '1Sg', '1St Lt', '1Stlt', '1Stsgt', '1st Lt', '1stLt', '1stSgt', '2D Lt', '2LT', '2Lt', '2Ndlt', '2d Lt', '2ndLt', 'A1C', 'AB', 'ADM', 'Ab', 'Adm', 'Admiral Chief of Naval Operations', 'Airman', 'Airman Basic', 'Airman First Class', 'Amn', 'BG', 'BGen', 'Bg', 'Bgen', 'Brig Gen', 'Brigadier General', 'CAPT', 'CCM', 'CDR', 'CMSAF', 'CMSgt', 'COL', 'CPL', 'CPO', 'CPT', 'CSM', 'CW2', 'CW3', 'CW4', 'CW5', 'CWO2', 'CWO3', 'CWO4', 'CWO5', 'Capt', 'Captain', 'Ccm', 'Cdr', 'Chief Master Sergeant', 'Chief Master Sergeant of the Air Force', 'Chief Petty Officer', 'Chief Warrant Officer 2', 'Chief Warrant Officer 3', 'Chief Warrant Officer 4', 'Chief Warrant Officer 5', 'Cmsaf', 'Cmsgt', 'Col', 'Colonel', 'Command Chief Master Sergeant', 'Command Master Chief Petty Officer', 'Command Sergeant Major', 'Commandant of the Coast Guard', 'Commander', 'Corporal', 'Cpl', 'Cpo', 'Cpt', 'Csm', 'Cw2', 'Cw3', 'Cw4', 'Cw5', 'Cwo2', 'Cwo3', 'Cwo4', 'Cwo5', 'ENS', 'Ens', 'Ensign', 'FADM', 'FLTCM', 'FORCM', 'Fadm', 'First Lieutenant', 'First Sergeant', 'Fleet Admiral', 'Fleet Master Chief Petty Officer', 'Fltcm', 'Force Master Chief Petty Officer', 'Forcm', 'GA', 'GEN', 'GOAF', 'Ga', 'Gen', 'General', 'General Air Force Chief of Staff', 'General of the Air Force', 'General of the Army', 'Goaf', 'Gunnery Sergeant', 'GySgt', 'Gysgt', 'LCDR', 'LCpl', 'LT', 'LTC', 'LTG', 'LTJG', 'Lance Corporal', 'Lcdr', 'Lcpl', 'Lieutenant', 'Lieutenant Colonel', 'Lieutenant Commander', 'Lieutenant General', 'Lieutenant, Junior Grade', 'Lt', 'Lt Col', 'Lt Gen', 'LtCol', 'LtGen', 'Ltc', 'Ltcol', 'Ltg', 'Ltgen', 'Ltjg', 'MAJ', 'MCPO', 'MCPOC', 'MCPON', 'MG', 'MGySgt', 'MPCOCG', 'MSG', 'MSgt', 'Maj', 'Maj Gen', 'MajGen', 'Majgen', 'Major', 'Major General', 'Master Chief Petty Officer', 'Master Chief Petty Officer of the Coast Guard', 'Master Chief Petty Officer of the Navy', 'Master Gunnery Sergeant', 'Master Sergeant', 'Mcpo', 'Mcpoc', 'Mcpon', 'Mg', 'Mgysgt', 'Mpcocg', 'Msg', 'Msgt', 'PFC', 'PO1', 'PO2', 'PO3', 'PV2', 'PVT', 'Petty Officer 1st Class', 'Petty Officer 2nd Class', 'Petty Officer 3rd Class', 'Pfc', 'Po1', 'Po2', 'Po3', 'Private', 'Private 2', 'Private First Class', 'Pv2', 'Pvt', 'RADM', 'RDML', 'Radm', 'Rdml', 'Rear Admiral (lower half)', 'Rear Admiral (upper half)', 'SA', 'SCPO', 'SFC', 'SGM', 'SGT', 'SMA', 'SMSgt', 'SN', 'SPC', 'SR', 'SSG', 'SSgt', 'Sa', 'Scpo', 'Seaman', 'Seaman Apprentice', 'Seaman Recruit', 'Second Lieutenant', 'Senior Airman or Sergeant', 'Senior Chief Petty Officer', 'Senior Master Sergeant', 'Sergeant', 'Sergeant First Class', 'Sergeant Major', 'Sergeant Major of the Army', 'Sergeant Major of the Marine Corps', 'Sfc', 'Sgm', 'Sgt', 'SgtMaj', 'SgtMajMarCor', 'Sgtmaj', 'Sgtmajmarcor', 'Sma', 'Smsgt', 'Sn', 'Spc', 'Specialist', 'Sr', 'SrA', 'Sra', 'Ssg', 'Ssgt', 'Staff Sergeant', 'TSgt', 'Technical Sergeant', 'Tsgt', 'VADM', 'Vadm', 'Vice Admiral', 'WO1', 'Warrant Officer', 'Warrant Officer 1', 'Wo1']

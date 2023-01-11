@@ -1,0 +1,1 @@
+(Mr|Mrs|Miss|Dr|Mx|Prof|Mdm)(\.)* (and|&) (Mr|Mrs|Miss|Dr|Mx|Prof|Mdm)(\.)* [A-Z][a-z]*( [A-Z][a-z]*)*

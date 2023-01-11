@@ -1,0 +1,2 @@
+[spacy_models]
+en_genderspacy = en_genderspacy

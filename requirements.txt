@@ -1,0 +1,4 @@
+pandas
+spacy
+toml
+pip install crosslingual-coreference

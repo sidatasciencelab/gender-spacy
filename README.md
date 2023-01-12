@@ -1,4 +1,6 @@
 
+![gender spacy logo](images/genderspacy-logo.png)
+
 # ABOUT
 
 Gender spaCy is a heuristic and machine learning pipeline that allows users to identify gender in an ethical way using gender-specific context. It is designed to sit alongside a standard spaCy pipeline (only English supported currently). The majority of the pipeline is rules-based, relying on titles and pronouns to identify gender as presented in the text. **It is important to note that this pipeline does not seek to assign gender to an individual, rather contextually identify an entity's gender within the context of a text.**
@@ -31,7 +33,7 @@ Next, install GenderSpaCy
 pip install gender-spacy
 ```
 
-AllenNLP, a dependency of GenderSpaCy requires spaCy 3.3. While the library will work, a bug results in spaCy's displacy not rendering the span visualizations. To correct this, run:
+AllenNLP, a dependency of GenderSpaCy, requires spaCy 3.3. While the library will work, a bug results in spaCy's displacy not rendering the span visualizations. To correct this, run:
 
 (**Optional**)
 

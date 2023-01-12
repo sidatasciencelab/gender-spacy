@@ -1,6 +1,4 @@
-include meta.json
-include LICENSE
-include LICENSES_SOURCES
 include README.md
-include gender_pronouns.csv
-include project.toml
+include gender_spacy/data/gender_pronouns.csv
+include gender_spacy/data/project.toml
+include gender_spacy/data/pronoun_patterns

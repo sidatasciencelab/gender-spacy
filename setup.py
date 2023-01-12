@@ -15,11 +15,9 @@ setup(
     long_description_content_type='text/markdown',
     packages=find_packages(),
     install_requires=["pandas>=1.0.0,<2.0.0",
-                     "protobuf<=3.20.0",
-                     "spacy>=3.4.0",
-                     "allennlp>=2.9.0",
+                    #  "spacy>=3.3.0",
                      "toml>=0.10.0",
-                     "spacy-transformers>=1.1.0",
+                     "allennlp>=2.10.0",
                      ],
     include_package_data = True
 )

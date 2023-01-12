@@ -1,0 +1,14 @@
+MANIFEST.in
+README.md
+setup.py
+gender_spacy/__init__.py
+gender_spacy/components.py
+gender_spacy/gender_spacy.py
+gender_spacy.egg-info/PKG-INFO
+gender_spacy.egg-info/SOURCES.txt
+gender_spacy.egg-info/dependency_links.txt
+gender_spacy.egg-info/requires.txt
+gender_spacy.egg-info/top_level.txt
+gender_spacy/data/gender_pronouns.csv
+gender_spacy/data/project.toml
+gender_spacy/data/pronoun_patterns

@@ -36,7 +36,11 @@ visualize_params["colors"] = colors
 from allennlp.predictors.predictor import Predictor
 
 
-class GenderParser:
+class GenderParser(str: model_name):
+    """
+    Args:
+        model_name (str): the spaCy model you wish to use, e.g. en_core_web_lg
+    """
     def __init__(self, model_name):
         coref_model = CrossLingualPredictor(model_name)
         nlp = spacy.load(model_name)
@@ -49,6 +53,14 @@ class GenderParser:
         self.nlp = nlp
         self.coref_model = coref_model
     def process_doc(self, text):
+        """
+        Creates the spaCy doc container and iterates over the entities found by the spaCy NER model.
+        Args:
+            text (str): the text that will be processed.
+        
+        Returns:
+            doc (spaCy Doc): the doc container that contains all the data about gender spans
+        """
         doc = self.nlp(text)
 
         original_spans  = list(doc.spans["ruler"])
@@ -60,6 +72,10 @@ class GenderParser:
         self.doc = doc
         return doc
     def coref_resolution(self):
+        """
+        Uses the Crosslingual Coreference Predictor Class to identify all connections between PERSON entities and pronouns.
+        If there is a cluster where a PERSON entity has a gender-specific pronoun, the span labels are adjusted accordingly.
+        """
 
         coref_res = self.coref_model.predict(self.doc.text)
         cluster_texts = []
@@ -83,10 +99,15 @@ class GenderParser:
         self.doc.spans["ruler"] = original_spans
         return self.doc
     def visualize(self, jupyter=True):
-        # if jupyter==True:
+        """
+        visualizes the spaCy doc Container on the spans
+        Args:
+            jupyter (Bool): affects if the visualization loads in Jupyter or as HTML
+        """
+        if jupyter==True:
             displacy.render(self.doc, style="span", options=visualize_params, jupyter=True)
-        # else:
-        #     displacy.render(self.doc, style="span", options={"spans_key": "ruler"})
+        else:
+            displacy.render(self.doc, style="span", options={"spans_key": "ruler"})
             
 MODELS = {
     "xlm_roberta": {

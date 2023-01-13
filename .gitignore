@@ -18,3 +18,5 @@ models/crosslingual-coreference/minilm/model.tar.gz
 .ipynb_checkpoints/run_pipeline-checkpoint.ipynb
 .ipynb_checkpoints/Untitled-checkpoint.ipynb
 .ipynb_checkpoints/Untitled1-checkpoint.ipynb
+coref-spanbert-large-2021.03.10.tar.gz
+__pycache__/setup.cpython-39.pyc

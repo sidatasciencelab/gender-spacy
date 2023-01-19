@@ -1,5 +1,5 @@
 
-![gender spacy logo](images/genderspacy-logo.png)
+![gender spacy logo](https://github.com/sidatasciencelab/gender-spacy/raw/main/images/genderspacy-logo.png)
 
 # About
 
@@ -66,7 +66,7 @@ nlp.visualize()
 
 ## Expected Result
 
-![result demo](images/result.JPG)
+![result demo](https://github.com/sidatasciencelab/gender-spacy/raw/main/images/result.JPG)
 
 
 

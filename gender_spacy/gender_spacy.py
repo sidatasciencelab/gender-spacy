@@ -1,6 +1,6 @@
 import spacy
 from spacy import displacy
-from spacy.tokens import Doc
+from spacy.tokens import Doc, Span
 
 import itertools
 import pathlib
@@ -33,17 +33,23 @@ colors = project_data["colors"]
 visualize_params = project_data["visualize_params"]
 visualize_params["colors"] = colors
 
-from allennlp.predictors.predictor import Predictor
-
-
-class GenderParser(str: model_name):
+class GenderParser:
     """
     Args:
         model_name (str): the spaCy model you wish to use, e.g. en_core_web_lg
     """
     def __init__(self, model_name):
-        coref_model = CrossLingualPredictor(model_name)
         nlp = spacy.load(model_name)
+
+        nlp_coref = spacy.load("en_coreference_web_trf")
+
+        # use replace_listeners for the coref components
+        nlp_coref.replace_listeners("transformer", "coref", ["model.tok2vec"])
+        nlp_coref.replace_listeners("transformer", "span_resolver", ["model.tok2vec"])
+
+        # we won't copy over the span cleaner
+        nlp.add_pipe("coref", source=nlp_coref)
+        nlp.add_pipe("span_resolver", source=nlp_coref)
 
         nlp.add_pipe("pronoun_resolver")
         ruler = nlp.add_pipe("span_ruler")
@@ -51,7 +57,7 @@ class GenderParser(str: model_name):
         nlp.add_pipe('people_and_spouse')
         ruler.add_patterns(pronoun_patterns)
         self.nlp = nlp
-        self.coref_model = coref_model
+    
     def process_doc(self, text):
         """
         Creates the spaCy doc container and iterates over the entities found by the spaCy NER model.
@@ -62,6 +68,7 @@ class GenderParser(str: model_name):
             doc (spaCy Doc): the doc container that contains all the data about gender spans
         """
         doc = self.nlp(text)
+        print(doc.spans)
 
         original_spans  = list(doc.spans["ruler"])
         for ent in doc.ents:
@@ -76,27 +83,81 @@ class GenderParser(str: model_name):
         Uses the Crosslingual Coreference Predictor Class to identify all connections between PERSON entities and pronouns.
         If there is a cluster where a PERSON entity has a gender-specific pronoun, the span labels are adjusted accordingly.
         """
+        spans = list(self.doc.spans["ruler"])
+        pronouns = {"female": ["she", "her", "hers", "herself"], "male": ["he", "him", "his", "himself"]}
 
-        coref_res = self.coref_model.predict(self.doc.text)
-        cluster_texts = []
-        for cluster in coref_res:
-            texts = []
-            for hit in cluster:
-                start, end = hit
-                texts.append(self.doc[start:end+1].text)
-            cluster_texts.append(texts)
+        def parse_gender(token, pronoun_set, gender):
+            if token.text.lower() not in pronoun_set:
+                span = self.doc.char_span(token.start_char, token.end_char, label=gender.upper())
+                span = Span(self.doc, span.start, span.end, label=f"PERSON_{gender.upper()}_COREF")
+                return span
 
-        original_spans = list(self.doc.spans["ruler"])
-        for span in original_spans:
-            if span.label_ in ["PERSON_NEUTRAL", "PERSON_UNKNOWN", "PERSON"]:
-                for cluster in cluster_texts:
-                    if span.text in cluster:
-                        for hit in cluster:
-                            if hit.lower() in ["he", "his", "him", "himself"]:
-                                span.label_ = "PERSON_MALE_COREF"
-                            elif hit.lower() in ["she", "her", "hers", "herself"]:
-                                span.label_ = "PERSON_FEMALE_COREF"
-        self.doc.spans["ruler"] = original_spans
+        for key, cluster in self.doc.spans.items():
+            if "head" in key:
+                head_tokens = [token.text.lower() for token in cluster]
+                for gender, pronoun_set in pronouns.items():
+                    if any(pronoun in head_tokens for pronoun in pronoun_set):
+                        for token in cluster:
+                            gender_res = parse_gender(token, pronoun_set, gender.upper())
+                            if gender_res != None:
+                                num = key.split("_")[-1]
+                                res_cluster = self.doc.spans[f"coref_clusters_{num}"]
+                                for token_set in res_cluster:
+                                    # print(token_set)
+                                    for token in token_set:
+                                        # print(token, token.pos_)
+                                        
+                                        if token.pos_ in "PROPN":
+                                            span = self.doc.char_span(token.idx, token.idx+len(token.text), label=gender.upper())
+                                            span = Span(self.doc, span.start, span.end, label=f"PERSON_{gender.upper()}_COREF")
+                                    
+                                            spans.append(span)
+                                        elif token.pos_ == "NOUN":
+                                            span = self.doc.char_span(token.idx, token.idx+len(token.text), label=gender.upper())
+                                            span = Span(self.doc, span.start, span.end, label=f"REL_{gender.upper()}_COREF")
+                                      
+                                            spans.append(span)
+
+        self.doc.spans["ruler"] = spans
+
+        def span_merger(doc):
+            original_spans = list(doc.spans["ruler"])
+            for span in original_spans:
+                if span.label_ == "PERSON_UNKNOWN":
+                    for span2 in original_spans:
+                        if span.start == span2.start:
+                            span.label_ = span2.label_
+            # for idx, span in enumerate(doc.spans["ruler"]):
+            # # print(span, span.start)
+            #     try:
+            #         if span.start+1 == original_spans[idx+1].start:
+            #             print(span, doc.spans["ruler"][idx+1])
+            #             new_span = Span(doc, span.start, span.start+2, label=f"PERSON_{gender.upper()}_COREF")
+            #             original_spans.remove(span)
+            #             original_spans.remove(doc.spans["ruler"][idx+1])
+            #             original_spans.append(new_span)
+            #     except:
+            #         IndexError
+            new_spans = spacy.util.filter_spans(original_spans)
+            return new_spans
+        merged_spans = span_merger(self.doc)
+        self.doc.spans["ruler"] = merged_spans
+        # for span in self.doc.spans["ruler"]:
+        #     if span.label_ == "PERSON_UNKNOWN":
+                # for span in self.doc.spans["ruler"]:        
+
+
+                # for key, cluster in self.doc.spans.items():
+                #     if key != "ruler":
+                #         print(key)
+                #         print(cluster)
+                #         for token in cluster:
+                #             if token.text == span.text:
+                #                 for token2 in cluster:
+                #                     if token2.text.lower() in ["she", "her", "hers", "herself"]:
+                #                         print("FEMININE")
+
+        
         return self.doc
     def visualize(self, jupyter=True):
         """
@@ -109,147 +170,3 @@ class GenderParser(str: model_name):
         else:
             displacy.render(self.doc, style="span", options={"spans_key": "ruler"})
             
-MODELS = {
-    "xlm_roberta": {
-        "url": "https://storage.googleapis.com/pandora-intelligence/models/crosslingual-coreference/xlm-roberta-base/model.tar.gz",  # noqa: B950
-        "f1_score_ontonotes": 74,
-        "file_extension": ".tar.gz",
-    },
-    "info_xlm": {
-        "url": "https://storage.googleapis.com/pandora-intelligence/models/crosslingual-coreference/infoxlm-base/model.tar.gz",  # noqa: B950
-        "f1_score_ontonotes": 77,
-        "file_extension": ".tar.gz",
-    },
-    "minilm": {
-        "url": (
-            "https://storage.googleapis.com/pandora-intelligence/models/crosslingual-coreference/minilm/model.tar.gz"
-        ),
-        "f1_score_ontonotes": 74,
-        "file_extension": ".tar.gz",
-    },
-    "spanbert": {
-        "url": "https://storage.googleapis.com/allennlp-public-models/coref-spanbert-large-2021.03.10.tar.gz",
-        "f1_score_ontonotes": 83,
-        "file_extension": ".tar.gz",
-    },
-}
-# This class comes from https://github.com/pandora-intelligence/crosslingual-coreference
-# I have modified this class minimally to fit into this project and align with spaCy 3.4.1
-class CrossLingualPredictor(object):
-    def __init__(
-        self,
-        language: str,
-        device: int = -1,
-        model_name: str = "spanbert",
-        chunk_size: Union[int, None] = None,  # determines the # sentences per batch
-        chunk_overlap: int = 2,  # determines the # of overlapping sentences per chunk
-    ) -> None:
-        self.chunk_size = chunk_size
-        self.chunk_overlap = chunk_overlap
-        self.language = language
-        self.filename = None
-        self.device = device
-        self.model_url = MODELS[model_name]["url"]
-        # self.resolver = Resolver()
-        self.download_model()
-        self.set_coref_model()
-
-    def download_model(self):
-        """
-        It downloads the model from the url provided and saves it in the current directory
-        """
-        if "https://storage.googleapis.com/pandora-intelligence/" in self.model_url:
-            self.filename = self.model_url.replace("https://storage.googleapis.com/pandora-intelligence/", "")
-        else:
-            self.filename = self.model_url.replace("https://storage.googleapis.com/allennlp-public-models/", "")
-        path = pathlib.Path(self.filename)
-        if path.is_file():
-            pass
-        else:
-            path.parent.absolute().mkdir(parents=True, exist_ok=True)
-            r = requests.get(self.model_url, stream=True)
-            file_size = int(r.headers["Content-Length"])
-
-            chunk_size = 1024
-            num_bars = int(file_size / chunk_size)
-
-            with open(self.filename, "wb") as fp:
-                for chunk in tqdm.tqdm(
-                    r.iter_content(chunk_size=chunk_size),
-                    total=num_bars,
-                    unit="KB",
-                    desc=self.filename,
-                    leave=True,
-                ):
-                    fp.write(chunk)
-
-    def set_coref_model(self):
-        """Initialize AllenNLP coreference model"""
-        self.predictor = Predictor.from_path(self.filename, language=self.language, cuda_device=self.device)
-
-    def predict(self, text: str) -> dict:
-        """predict and rsolve
-        Args:
-            text (str): an input text
-            uses more advanced resolve from:
-            https://towardsdatascience.com/how-to-make-an-effective-coreference-resolution-model-55875d2b5f19.
-        Returns:
-            dict: a prediciton
-        """
-        # chunk text
-        doc = self.predictor._spacy(text)
-        if self.chunk_size:
-            chunks = self.chunk_sentencized_doc(doc)
-        else:
-            chunks = [text]
-
-        # make predictions for individual chunks
-        json_batch = [{"document": chunk} for chunk in chunks]
-        predictions = self.predictor.predict_batch_json(json_batch)
-
-        # determine doc_lengths to resolve overlapping chunks
-        doc_lengths = [
-            sum([len(sent) for sent in list(doc_chunk.sents)[:-2]]) for doc_chunk in self.predictor._spacy.pipe(chunks)
-        ]
-        doc_lengths = [0] + doc_lengths[:-1]
-
-        # convert cluster predictions to their original index in doc
-        all_clusters = [pred["clusters"] for pred in predictions]
-        corrected_clusters = []
-        for idx, doc_clus in enumerate(all_clusters):
-            corrected_clusters.append(
-                [[[num + sum(doc_lengths[: idx + 1]) for num in span] for span in clus] for clus in doc_clus]
-            )
-        merged_clusters = self.merge_clusters(corrected_clusters)
-        return merged_clusters
-
-    @staticmethod
-    def merge_clusters(
-        clusters: List[List[List[int]]],
-    ) -> List[List[List[int]]]:
-        """merge overlapping cluster from different segments, based on n_overlap_sentences"""
-        main_doc_clus = []
-        for doc_clus in clusters:
-            for clus in doc_clus:
-                combine_clus = False
-                for span in clus:
-                    for main_clus in main_doc_clus:
-                        for main_span in main_clus:
-                            if main_span == span:
-                                combined_clus = main_clus + clus
-                                combined_clus.sort()
-                                combined_clus = list(k for k, _ in itertools.groupby(combined_clus))
-                                combine_clus = True
-                                break
-                        if combine_clus:
-                            break
-                    if combine_clus:
-                        break
-                if combine_clus:
-                    main_doc_clus.append(combined_clus)
-                else:
-                    main_doc_clus.append(clus)
-
-        main_doc_clus.sort()
-        main_doc_clus = list(k for k, _ in itertools.groupby(main_doc_clus))
-        return main_doc_clus

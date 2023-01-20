@@ -5,7 +5,7 @@
 
 Gender spaCy is a heuristic and machine learning pipeline that allows users to identify gender in an ethical way using gender-specific context. It is designed to sit alongside a standard spaCy pipeline (only English supported currently). The majority of the pipeline is rules-based, relying on titles and pronouns to identify gender as presented in the text. **It is important to note that this pipeline does not seek to assign gender to an individual, rather contextually identify an entity's gender within the context of a text.**
 
-There are Python libraries, such as gender-resolver that assign gender based on the statistical usage of first names in a given region. This, however, gets into problematic territory and is not as reliable as gender-based context (such as titles and pronouns). As a result, this pipeline opts out of leveraging these libraries. Instead, entities identified as PERSON by the spaCy NER model are altered to the span label of PERSON_UNKNOWN. Next, this pipeline leverages the work of Crosslingual-Coreference Resolution to align AllenNLP's Coref Predictor into the spaCy pipeline. Gender spaCy then passes over all clusters identified by AllenNLP's Predictor. If any of them align with PERSON_UNKNOWN tags *and* gender-specific pronouns are used, the entity's label is changed to a gender-specific label, e.g. PERSON_FEMALE, PERSON_MALE, PERSON_NEUTRAL.
+There are Python libraries, such as gender-resolver that assign gender based on the statistical usage of first names in a given region. This, however, gets into problematic territory and is not as reliable as gender-based context (such as titles and pronouns). As a result, this pipeline opts out of leveraging these libraries. Instead, entities identified as PERSON by the spaCy NER model are altered to the span label of PERSON_UNKNOWN. Next, this pipeline leverages the new experimental coreference resolution model from ExplosionAI. It looks at all clusters of linked tokens. If any of them align with PERSON_UNKNOWN tags *and* gender-specific pronouns are used, the entity's label is changed to a gender-specific label, e.g. PERSON_FEMALE, PERSON_MALE, PERSON_NEUTRAL. In addition, terms that are nouns that are linked to a specific person receive the tag "REL_MALE/FEMALE_COREF".
 
 In addition to this, all gender-neutral pronouns are also identified and labeled as spans. This includes male, female, and gender neutral pronouns. Even transformer models have difficulty correctly parsing certain gender neutral pronouns due to their toponym nature, such as "per" which can function in English as an adverb (Per our discusion yesterday, I want to go to the store.) or as a gender neutral pronoun (Per went to the store yesterday). With a few extra rules, Gender spaCy corrects the POS tags for these toponyms in addition to placing all pronouns in the spans ruler.
 
@@ -13,7 +13,7 @@ Users can access all gender span data under doc.spans["ruler].
 
 # Installation
 
-Due to dependency issues, installation requires three steps. First, make sure you are working in a new environment.
+Because this pipeline leverages spaCy's new experimental coreference resolution model, it is best to install Gender spaCy in a fresh environment.
 
 First, it is good to create a new environment.
 
@@ -33,13 +33,13 @@ Next, install GenderSpaCy
 pip install gender-spacy
 ```
 
-AllenNLP, a dependency of GenderSpaCy, requires spaCy 3.3. While the library will work, a bug results in spaCy's displacy not rendering the span visualizations. To correct this, run:
-
-(**Optional**)
+Finally, for the pipeline to perform coreference resolution, you should install the latest version of the spaCy experimental coreference resolution model.
 
 ```python
-pip install spacy --upgrade
+pip install https://github.com/explosion/spacy-experimental/releases/download/v0.6.0/en_coreference_web_trf-3.4.0a0-py3-none-any.whl
 ```
+
+
 
 # Usage
 
@@ -50,7 +50,7 @@ from gender_spacy import gender_spacy as gs
 
 # create the GenderParser nlp class.
 # This will take one argument: the spaCy model you wish to use
-nlp = gs.GenderParser("en_core_web_lg")
+nlp = gs.GenderParser("en_core_web_sm")
 
 # create a text and pass it to the the nlp via the process_doc() method.
 text = """Harry Potter was the main character in the book. He had a friend named Hermione. She was a wizard too."""

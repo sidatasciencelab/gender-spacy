@@ -68,7 +68,6 @@ class GenderParser:
             doc (spaCy Doc): the doc container that contains all the data about gender spans
         """
         doc = self.nlp(text)
-        print(doc.spans)
 
         original_spans  = list(doc.spans["ruler"])
         for ent in doc.ents:
@@ -80,7 +79,7 @@ class GenderParser:
         return doc
     def coref_resolution(self):
         """
-        Uses the Crosslingual Coreference Predictor Class to identify all connections between PERSON entities and pronouns.
+        Uses the spaCy Experimental Coref Model to identify all connections between PERSON entities and pronouns.
         If there is a cluster where a PERSON entity has a gender-specific pronoun, the span labels are adjusted accordingly.
         """
         spans = list(self.doc.spans["ruler"])
@@ -103,62 +102,20 @@ class GenderParser:
                                 num = key.split("_")[-1]
                                 res_cluster = self.doc.spans[f"coref_clusters_{num}"]
                                 for token_set in res_cluster:
-                                    # print(token_set)
-                                    for token in token_set:
-                                        # print(token, token.pos_)
-                                        
-                                        if token.pos_ in "PROPN":
-                                            span = self.doc.char_span(token.idx, token.idx+len(token.text), label=gender.upper())
+                                    for token2 in token_set:
+                                        if token2.pos_ in "PROPN":
+                                            span = self.doc.char_span(token2.idx, token2.idx+len(token2.text), label=gender.upper())
                                             span = Span(self.doc, span.start, span.end, label=f"PERSON_{gender.upper()}_COREF")
-                                    
                                             spans.append(span)
-                                        elif token.pos_ == "NOUN":
-                                            span = self.doc.char_span(token.idx, token.idx+len(token.text), label=gender.upper())
-                                            span = Span(self.doc, span.start, span.end, label=f"REL_{gender.upper()}_COREF")
-                                      
+                                        elif token2.pos_ == "NOUN":
+                                            span = self.doc.char_span(token2.idx, token2.idx+len(token2.text), label=gender.upper())
+                                            span = Span(self.doc, span.start, span.end, label=f"REL_{gender.upper()}_COREF")                  
                                             spans.append(span)
 
-        self.doc.spans["ruler"] = spans
-
-        def span_merger(doc):
-            original_spans = list(doc.spans["ruler"])
-            for span in original_spans:
-                if span.label_ == "PERSON_UNKNOWN":
-                    for span2 in original_spans:
-                        if span.start == span2.start:
-                            span.label_ = span2.label_
-            # for idx, span in enumerate(doc.spans["ruler"]):
-            # # print(span, span.start)
-            #     try:
-            #         if span.start+1 == original_spans[idx+1].start:
-            #             print(span, doc.spans["ruler"][idx+1])
-            #             new_span = Span(doc, span.start, span.start+2, label=f"PERSON_{gender.upper()}_COREF")
-            #             original_spans.remove(span)
-            #             original_spans.remove(doc.spans["ruler"][idx+1])
-            #             original_spans.append(new_span)
-            #     except:
-            #         IndexError
-            new_spans = spacy.util.filter_spans(original_spans)
-            return new_spans
-        merged_spans = span_merger(self.doc)
+        merged_spans = spacy.util.filter_spans(spans)
         self.doc.spans["ruler"] = merged_spans
-        # for span in self.doc.spans["ruler"]:
-        #     if span.label_ == "PERSON_UNKNOWN":
-                # for span in self.doc.spans["ruler"]:        
-
-
-                # for key, cluster in self.doc.spans.items():
-                #     if key != "ruler":
-                #         print(key)
-                #         print(cluster)
-                #         for token in cluster:
-                #             if token.text == span.text:
-                #                 for token2 in cluster:
-                #                     if token2.text.lower() in ["she", "her", "hers", "herself"]:
-                #                         print("FEMININE")
-
-        
         return self.doc
+
     def visualize(self, jupyter=True):
         """
         visualizes the spaCy doc Container on the spans

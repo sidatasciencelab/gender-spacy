@@ -53,7 +53,11 @@ from gender_spacy import gender_spacy as gs
 nlp = gs.GenderParser("en_core_web_sm")
 
 # create a text and pass it to the the nlp via the process_doc() method.
-text = """Harry Potter was the main character in the book. He had a friend named Hermione. She was a wizard too."""
+text = """
+During the year Miss Densmore arranged in final order 245 songs to accompany her manuscript on Seminole music and revised portions of the text to conform to this arrangement of the material. 
+
+In December 1941 Miss Densmore was appointed as consultant at The National Archives for work in connection with the Smithsonian Densmore collection of sound recordings of American Indian music, and duiing the ensuing months she was engaged in planning the organization of the collection.
+"""
 doc = nlp.process_doc(text)
 
 # perform coreference resolution on the doc container

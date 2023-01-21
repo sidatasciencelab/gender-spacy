@@ -77,4 +77,5 @@ nlp.visualize()
 # CITATIONS
 Source for gender pronouns: https://uwm.edu/lgbtrc/support/gender-pronouns/
 
-Source for Coreference Resolution Class: https://github.com/pandora-intelligence/crosslingual-coreference
+Source for Coreference Resolution: https://explosion.ai/blog/coref
+Discussion for Coref Code: https://github.com/explosion/spaCy/discussions/11585

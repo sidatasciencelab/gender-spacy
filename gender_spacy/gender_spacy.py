@@ -33,13 +33,26 @@ colors = project_data["colors"]
 visualize_params = project_data["visualize_params"]
 visualize_params["colors"] = colors
 
+pronouns = project_data["pronouns"]
+
+
 class GenderParser:
     """
     Args:
         model_name (str): the spaCy model you wish to use, e.g. en_core_web_lg
     """
     def __init__(self, model_name):
-        nlp = spacy.load(model_name)
+        try:
+            nlp = spacy.load(model_name)
+        except:
+            OSError
+            print(f"Downloading {model_name}...")
+            try:
+                os.system(f"python -m spacy download {model_name}")
+                nlp = spacy.load(model_name)
+            except:
+                OSError
+                raise Exception(f"{model_name} is not a recognized spaCy model.")
 
         nlp_coref = spacy.load("en_coreference_web_trf")
 
@@ -83,7 +96,7 @@ class GenderParser:
         If there is a cluster where a PERSON entity has a gender-specific pronoun, the span labels are adjusted accordingly.
         """
         spans = list(self.doc.spans["ruler"])
-        pronouns = {"female": ["she", "her", "hers", "herself"], "male": ["he", "him", "his", "himself"]}
+        # pronouns = {"female": ["she", "her", "hers", "herself"], "male": ["he", "him", "his", "himself"]}
 
         def parse_gender(token, pronoun_set, gender):
             if token.text.lower() not in pronoun_set:
@@ -107,12 +120,30 @@ class GenderParser:
                                             span = self.doc.char_span(token2.idx, token2.idx+len(token2.text), label=gender.upper())
                                             span = Span(self.doc, span.start, span.end, label=f"PERSON_{gender.upper()}_COREF")
                                             spans.append(span)
-                                        elif token2.pos_ == "NOUN":
-                                            span = self.doc.char_span(token2.idx, token2.idx+len(token2.text), label=gender.upper())
-                                            span = Span(self.doc, span.start, span.end, label=f"REL_{gender.upper()}_COREF")                  
-                                            spans.append(span)
-
-        merged_spans = spacy.util.filter_spans(spans)
+                                        # elif token2.pos_ == "NOUN":
+                                        #     span = self.doc.char_span(token2.idx, token2.idx+len(token2.text), label=gender.upper())
+                                        #     span = Span(self.doc, span.start, span.end, label=f"REL_{gender.upper()}_COREF")                  
+                                        #     spans.append(span)
+        def connect_spans(spans):
+            for i, span in enumerate(spans):
+                for span2 in spans:
+                    if span.end == span2.start:
+                        if (self.doc[span.start].pos_ and self.doc[span2.start].pos_) == "PROPN":
+                            new_span = Span(self.doc, span.start, span.end+1, label=span.label_)
+                            spans.append(new_span)
+            return spans
+        spans = connect_spans(spans)
+        # spans = connect_spans(spans)
+        final_spans = []
+        for span in spans:
+            rem = False
+            if span.label_ == "PERSON_UNKNOWN":
+                for span2 in spans:
+                    if span2.start == span.start:
+                        rem = True
+            if rem == False:
+                final_spans.append(span)
+        merged_spans = spacy.util.filter_spans(final_spans)
         self.doc.spans["ruler"] = merged_spans
         return self.doc
 

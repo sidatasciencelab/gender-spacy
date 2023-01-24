@@ -61,7 +61,7 @@ In December 1941 Miss Densmore was appointed as consultant at The National Archi
 doc = nlp.process_doc(text)
 
 # perform coreference resolution on the doc container
-# This part of the library comes from Crosslingual Coreference
+# This part of the library comes from spacy-experimental
 doc = nlp.coref_resolution()
 
 # Visualize the result:

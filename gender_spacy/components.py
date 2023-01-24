@@ -36,7 +36,7 @@ for title_name, title_list in titles.items():
     all_titles = all_titles+f"{title_combined}|"
     pattern = regex["individual"].replace("<GENDER_TITLES>", title_combined).replace("\\\\", "\\")
     regex_patterns[title_name] = pattern
-regex_patterns["spouse"] = regex["spouse"].replace("<GENDER_TITLES>", all_titles).replace("\\\\", "\\")
+regex_patterns["spouse"] = regex["spouse"].replace("<GENDER_TITLES>", all_titles).replace("\\\\", "\\").replace("|)", ")")
 all_titles = all_titles[:-1]
 
 

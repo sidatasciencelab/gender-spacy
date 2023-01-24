@@ -8,16 +8,33 @@ description = "This is a spaCy pipeline for helping identify gender in texts. It
 [colors]
 NEUTRAL_PRONOUN="#ffb6f8"
 PERSON_NEUTRAL="#ffb6f8"
+REL_NEUTRAL_COREF="#ffb6f8"
 
 FEMALE_PRONOUN="#b6fff7"
 PERSON_FEMALE="#b6fff7"
 PERSON_FEMALE_COREF="#b6fff7"
+REL_FEMALE_COREF="#b6fff7"
 
 MALE_PRONOUN="#b6b7ff"
 PERSON_MALE="#b6b7ff"
 PERSON_MALE_COREF="#b6b7ff"
+REL_MALE_COREF="#b6b7ff"
 
 COLLECTIVE_SPOUSAL="#f7ffb6"
+
+[pronouns]
+male= ['he', 'him', 'his', 'his', 'himself']
+female = ['she', 'her', 'her', 'hers', 'herself']
+neutral = ['fae', 'faer', 'faer', 'faers', 'faerself',
+            'ae', 'aer', 'aer', 'faers', 'faerself',
+            'e', 'em', 'eir', 'eirs', 'eirself',
+            'ey', 'em', 'eir', 'eirs', 'eirself',
+            'per', 'per', 'pers', 'pers', 'perself',
+            'they', 'them', 'their', 'theirs', 'themself',
+            've', 'ver', 'vis', 'vis', 'vereself',
+            'xe', 'xem', 'xyr', 'xyrs', 'xemself','ze',
+            'hir', 'hir', 'hirs', 'hirself',
+            'zie', 'hir', 'hir', 'hirs', 'hirself']
 
 [visualize_params]
 spans_key="ruler"

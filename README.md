@@ -78,4 +78,5 @@ nlp.visualize()
 Source for gender pronouns: https://uwm.edu/lgbtrc/support/gender-pronouns/
 
 Source for Coreference Resolution: https://explosion.ai/blog/coref
+
 Discussion for Coref Code: https://github.com/explosion/spaCy/discussions/11585

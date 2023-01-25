@@ -114,9 +114,9 @@ nlp = gs.GenderParser("en_core_web_sm")
 
 # create a text and pass it to the the nlp via the process_doc() method.
 text = """
-During the year Miss Densmore arranged in final order 245 songs to accompany her manuscript on Seminole music and revised portions of the text to conform to this arrangement of the material. 
+Maya Angelou was an American memoirist, popular poet, and civil rights activist. She published seven autobiographies, three books of essays, several books of poetry, and is credited with a list of plays, movies, and television shows spanning over 50 years.
 
-In December 1941 Miss Densmore was appointed as consultant at The National Archives for work in connection with the Smithsonian Densmore collection of sound recordings of American Indian music, and duiing the ensuing months she was engaged in planning the organization of the collection.
+Jerome Allen Seinfeld is an American stand-up comedian, actor, writer, and producer. He is best known for playing a semi-fictionalized version of himself in the sitcom Seinfeld (1989–1998), which he created and wrote with Larry David.
 """
 doc = nlp.process_doc(text)
 
@@ -133,7 +133,7 @@ nlp.visualize()
 
 Once you run this command, you should see an output like the following image:
 
-![result demo](https://github.com/sidatasciencelab/gender-spacy/raw/main/images/result.JPG)
+![result demo](https://github.com/sidatasciencelab/gender-spacy/raw/main/images/demo.JPG)
 
 
 

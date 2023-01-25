@@ -1,4 +1,0 @@
-pandas<2.0.0,>=1.0.0
-spacy>=3.4.0
-spacy-experimental>=0.6.0
-spacy-transformers>=1.1.8toml>=0.10.0

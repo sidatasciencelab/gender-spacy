@@ -17,7 +17,7 @@ setup(
     install_requires=["pandas>=1.0.0,<2.0.0",
                      "spacy>=3.4.0",
                      "spacy-experimental>=0.6.0",
-                     "spacy-transformers>=1.1.8"
+                     "spacy-transformers>=1.1.8",
                      "toml>=0.10.0",
                     #  "en_coreference_web_trf @ git+ssh://git@/github.com/explosion/spacy-experimental/releases/download/v0.6.0/en_coreference_web_trf-3.4.0a0-py3-none-any.whl"
                      ],
